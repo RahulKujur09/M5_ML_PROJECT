@@ -10,11 +10,15 @@ LOG_FILE_NAME : str = format(datetime.now(), "%d_%m_%y_%H_%M_%S") + ".log"
 
 ARTIFACT_DIR_NAME : str = "ARTIFACTS"
 
+ARTIFACT_SUB_FOLDER : str = format(datetime.now(), "%d_%m_%y_%H_%M_%S")
+
 DATA_SET_SPLITTER : str = "2016-01-01"
 
 CALENDAR_CSV_FILE_PATH : str = os.path.join(os.getcwd(), "data", "calendar.csv")
 SALES_TRAIN_VALIDATION_PATH : str = os.path.join(os.getcwd(), "data", "sales_train_validation.csv")
 SELL_PRICES_PATH : str = os.path.join(os.getcwd(), "data", "sell_prices.csv")
+
+SCHEMA_FILE_PATH : str = "D:/M5_ML_Project/schema/schame.yaml"
 
 
 
@@ -28,3 +32,22 @@ DATA_INGESTION_FEATURE_FILE_NAME : str = "features.csv"
 DATA_INGESTION_DATA_SETS_DIR : str = "data_set"
 DATA_INGESTION_TRAIN_SET_FILE_NAME : str = "train.csv"
 DATA_INGESTION_TEST_SET_FILE_NAME : str = "test.csv"
+
+'''
+DATA VALIDATION CONSTANTS starts with DATA_VALIDATION_VAR_NAME
+'''
+DATA_VALIDATION_DIR_NAME : str = "data_validation"
+
+DATA_VALIDATION_DRIFT_REPORT_DIR : str = "drift_report"
+
+DATA_VALIDATION_DRIFT_FILE_NAME : str = "drift_report.yaml"
+
+DATA_VALIDATION_VALID_DATA_DIR : str = "valid_data"
+
+DATA_VALIDATION_VALID_TRAIN_FILE_NAME : str = "valid_train.csv"
+DATA_VALIDATION_VALID_TEST_FILE_NAME : str = "valid_test.csv"
+
+DATA_VALIDATION_INVALID_DATA_DIR : str = "invalid_data"
+
+DATA_VALIDATION_INVALID_TRAIN_FILE_NAME : str = "invalid_train.csv"
+DATA_VALIDATION_INVALID_TEST_FILE_NAME : str = "invalid_test.csv"

@@ -51,6 +51,8 @@ class DataIngestion:
             self.calendar_df = DataIngestion.get_raw_csv(calendar_file_path)
             logging.info(f"fetched calendar as dataframe")
 
+            self.sales_train_validation_df = self.sales_train_validation_df[self.sales_train_validation_df["store_id"] == "CA_1"]
+
             melt_columns = [var for var in self.sales_train_validation_df.columns if var.startswith("d_")]
 
             col = self.sales_train_validation_df.columns.to_list()
@@ -74,14 +76,14 @@ class DataIngestion:
             sales_train_validation_melted_df_with_calendar = sales_train_validation_melted_df.merge(self.calendar_df, how="left", on="d")
             logging.info(f"merged sales_train_validation and calender dataframes")
 
-            sales_train_validation_melted_df_with_calendar_for_CA_1_store = sales_train_validation_melted_df_with_calendar[sales_train_validation_melted_df["store_id"] == "CA_1"]
+            # sales_train_validation_melted_df_with_calendar_for_CA_1_store = sales_train_validation_melted_df_with_calendar[sales_train_validation_melted_df["store_id"] == "CA_1"]
 
             logging.info(f"seperated data from 'CA_1' store from 'sales_train_validation_melted_df_with_calendar'")
 
             sale_prices_df_CA_1 = self.sell_prices_df[self.sell_prices_df["store_id"] == "CA_1"]
             logging.info(f"seperated data from 'CA_1' store from 'sell_prices_df'")
 
-            main_df = sales_train_validation_melted_df_with_calendar_for_CA_1_store.merge(sale_prices_df_CA_1, how="left", on=["store_id", "item_id", "wm_yr_wk"])
+            main_df = sales_train_validation_melted_df_with_calendar.merge(sale_prices_df_CA_1, how="left", on=["store_id", "item_id", "wm_yr_wk"])
             logging.info(f"merged 'sales_train_validation_melted_df_with_calendar_for_CA_1_store' and 'sale_prices_df_CA_1' dataframes")
 
             main_df = main_df.replace(["NAN", "Nan", "nan", "Na", "na", "NA"], np.nan)
@@ -110,6 +112,8 @@ class DataIngestion:
 
             actual_df = main_df.set_index("date")
             logging.info(f"set 'date' column as index")
+
+            actual_df = actual_df.drop(columns=["id", "d", "wm_yr_wk", "snap_TX", "snap_WI"])
 
             actual_df.to_csv(self.feature_store_file_name)
             logging.info(f"exported feature set")

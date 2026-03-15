@@ -1,0 +1,43 @@
+columns:
+  cat_id: str
+  date: str
+  dept_id: str
+  event_name_1: str
+  event_name_2: str
+  event_type_1: str
+  event_type_2: str
+  item_id: str
+  month: int64
+  rolling_1: float64
+  rolling_28: float64
+  rolling_7: float64
+  sales: int64
+  sell_price: float64
+  snap_CA: int64
+  state_id: str
+  store_id: str
+  wday: int64
+  weekday: str
+  year: int64
+categorical_columns:
+- date
+- item_id
+- dept_id
+- cat_id
+- store_id
+- state_id
+- weekday
+- event_name_1
+- event_type_1
+- event_name_2
+- event_type_2
+numerical_columns:
+- sales
+- wday
+- month
+- year
+- snap_CA
+- sell_price
+- rolling_1
+- rolling_7
+- rolling_28
