@@ -2,3 +2,12 @@
 data
 eda
 logs
+test
+test.ipynb
+main.py
+ARTIFACTS
+data_set
+test.csv
+train.csv
+feature_store
+features.csv

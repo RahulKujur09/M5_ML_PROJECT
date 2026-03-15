@@ -11,7 +11,7 @@ class CustomException(Exception):
 
         self.line_name = exc_tb.tb_lineno
 
-        self.file_name = exc_tb.tb_frame.fo_code.co_filename
+        self.file_name = exc_tb.tb_frame.f_code.co_filename
 
     def __str__(self) -> str:
         return f"The error occured in the line number [{self.line_name}] in the file name [{self.file_name}], and the error message is [{self.error_message}]"
