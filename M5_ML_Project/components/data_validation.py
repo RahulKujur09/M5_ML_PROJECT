@@ -54,11 +54,11 @@ class DataValidation:
 
                 is_dist_found = ks_2samp(d1, d2)
                 
-                if is_dist_found.pvalue <= threshold:
+                if threshold <= is_dist_found.pvalue:
+                    is_found = False
+                else:
                     is_found = True
                     status=True
-                else:
-                    is_found = False
 
                 report[col] = {
                     "p_value" : float(is_dist_found.pvalue),

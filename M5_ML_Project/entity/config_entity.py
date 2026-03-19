@@ -80,3 +80,19 @@ class DataValidationConfig:
         except Exception as e:
             logging.error(e)
             raise CustomException(e, sys)
+        
+class DataTransformationConfig:
+    def __init__(self, training_pipeline_config : TrainingPipelineConfig) -> None:
+        try:
+            self.data_transformation_dir : str = os.path.join(training_pipeline_config.artifact_sub_dir, training_pipeline.DATA_TRANSFORMATION_DIR_NAME)
+
+            os.makedirs(self.data_transformation_dir, exist_ok=True)
+
+            logging.info(f"made {training_pipeline.DATA_TRANSFORMATION_DIR_NAME} dir")
+
+            self.train_file_name : str = os.path.join(self.data_transformation_dir, training_pipeline.DATA_TRANSFORMATION_TRAIN_FILE_NAME)
+
+            self.test_file_name : str = os.path.join(self.data_transformation_dir, training_pipeline.DATA_TRANSFORMATION_TEST_FILE_NAME)
+        except Exception as e:
+            logging.error(e)
+            raise CustomException(e, sys)

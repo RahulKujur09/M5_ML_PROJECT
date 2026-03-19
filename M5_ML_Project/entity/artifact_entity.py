@@ -13,3 +13,8 @@ class DataValidationartifacts:
     valid_test_set_file_path : str
     invalid_train_set_file_path : str
     invalid_test_set_file_path : str
+
+@dataclass
+class DataTransformationArtifacts:
+    train_set_file_path : str
+    test_set_file_path : str

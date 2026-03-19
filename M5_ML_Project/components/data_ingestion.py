@@ -125,8 +125,11 @@ class DataIngestion:
 
             logging.info(f"exported test set")
 
-            train_set.to_csv(self.train_set_file_name)
-            test_set.to_csv(self.test_set_file_name)
+            train_set = train_set.reset_index()
+            test_set = test_set.reset_index()
+
+            train_set.to_csv(self.train_set_file_name, index=False)
+            test_set.to_csv(self.test_set_file_name, index=False)
 
             logging.info(f"exported data ingestion artifacts")
 
