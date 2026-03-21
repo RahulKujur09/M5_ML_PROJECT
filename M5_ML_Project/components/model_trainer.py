@@ -6,7 +6,7 @@ import numpy as np
 from M5_ML_Project.entity.config_entity import ModelTrainingConfig
 from M5_ML_Project.entity.artifact_entity import DataTransformationArtifacts, ModelTrainingArtifact
 from M5_ML_Project.constant.training_pipeline import training_pipeline
-from M5_ML_Project.utils.main_utils import get_model_report, save_report, get_regression_report, save_object
+from M5_ML_Project.utils.main_utils import trainlgbm, save_report, get_regression_report, save_object
 from sklearn.linear_model import (LinearRegression, LogisticRegression, ridge_regression)
 from sklearn.ensemble import (RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor)
 from sklearn.tree import DecisionTreeRegressor
@@ -78,28 +78,14 @@ class ModelTraining:
             y_test = final_test_df[training_pipeline.TARGET_COLUMN]
             x_test = final_test_df.drop(columns=[training_pipeline.TARGET_COLUMN, "date"])
 
-            x_train = x_train.astype("float32").to_numpy()
-            x_test  = x_test.astype("float32").to_numpy()
-            y_train = y_train.astype("float32").to_numpy()
-            y_test  = y_test.astype("float32").to_numpy()
+            x_train = x_train.to_numpy("float32")
+            x_test  = x_test.to_numpy("float32")
+            y_train = y_train.to_numpy("float32")
+            y_test  = y_test.to_numpy("float32")
 
-            
+            model = trainlgbm(x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test)
 
-            report = get_model_report(model_grid=model_grid, x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test)
-
-            save_report(report, self.report_file_path)
-
-            best_score = ModelTraining.get_score(r=report)
-
-            best_model = ModelTraining.get_model(r=report, score=best_score)
-
-            y_pred = best_model.predict(x=x_test)
-
-            regression_report = get_regression_report(y_true=y_test, y_pred=y_pred)
-
-            print(regression_report)
-
-            save_object(self.model_file_path, best_model)
+            save_object(self.model_file_path, model)
 
             return ModelTrainingArtifact(trained_model_file_path=self.model_file_path)
 

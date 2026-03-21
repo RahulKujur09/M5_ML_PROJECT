@@ -6,6 +6,7 @@ from M5_ML_Project.logging.logger import logging
 from M5_ML_Project.entity.config_entity import DataIngestionConfig
 from M5_ML_Project.constant.training_pipeline import training_pipeline
 from M5_ML_Project.entity.artifact_entity import DataIngestionArtifact
+from M5_ML_Project.utils.memory import reduce_mem
 
 class DataIngestion:
     def __init__(self, data_ingestion_config : DataIngestionConfig):
@@ -76,8 +77,6 @@ class DataIngestion:
             sales_train_validation_melted_df_with_calendar = sales_train_validation_melted_df.merge(self.calendar_df, how="left", on="d")
             logging.info(f"merged sales_train_validation and calender dataframes")
 
-            # sales_train_validation_melted_df_with_calendar_for_CA_1_store = sales_train_validation_melted_df_with_calendar[sales_train_validation_melted_df["store_id"] == "CA_1"]
-
             logging.info(f"seperated data from 'CA_1' store from 'sales_train_validation_melted_df_with_calendar'")
 
             sale_prices_df_CA_1 = self.sell_prices_df[self.sell_prices_df["store_id"] == "CA_1"]
@@ -85,6 +84,8 @@ class DataIngestion:
 
             main_df = sales_train_validation_melted_df_with_calendar.merge(sale_prices_df_CA_1, how="left", on=["store_id", "item_id", "wm_yr_wk"])
             logging.info(f"merged 'sales_train_validation_melted_df_with_calendar_for_CA_1_store' and 'sale_prices_df_CA_1' dataframes")
+
+            main_df = reduce_mem(main_df)
 
             main_df = main_df.replace(["NAN", "Nan", "nan", "Na", "na", "NA"], np.nan)
             logging.info(f"replaced nan value with np.nan")

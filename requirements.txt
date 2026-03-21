@@ -9,3 +9,4 @@ setuptools
 pymongo
 PyYAML
 statsmodels
+lightgbm

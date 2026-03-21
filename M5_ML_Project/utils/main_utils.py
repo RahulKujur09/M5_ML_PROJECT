@@ -1,11 +1,14 @@
 import os, sys
 import pandas as pd
+import numpy as np
 import yaml
 import pickle
 from M5_ML_Project.logging.logger import logging
 from M5_ML_Project.exception.exception import CustomException
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, TimeSeriesSplit
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, mean_squared_error
+
+import lightgbm as lgb
 
 def get_schema(file_path):
     try:
@@ -24,36 +27,48 @@ def save_report(content, file_path):
     except Exception as e:
         logging.error(e)
         raise CustomException(e, sys)
-    
-def get_model_report(model_grid, x_train, y_train, y_test, x_test):
-    try:
-        report = {}
-
-        for model_name, (model, param) in model_grid.items():
-            gs = RandomizedSearchCV(
-                estimator=model,
-                param_distributions=param,
-                n_iter=10,
-                scoring="neg_root_mean_squared_error",
-                cv=TimeSeriesSplit(n_splits=3),
-                n_jobs=1,
-                pre_dispatch=1,
-                random_state=42
-            )
-
-            gs.fit(X=x_train, y=y_train)
-
-            model_trained = gs.best_estimator_
-            params = gs.best_params_
-            score = root_mean_squared_error(y_true=y_test, y_pred=gs.predict(X=x_test))
-
-            report[model_name] = {
-                "model" : model_trained,
-                "params" : params,
-                "rmse" : score
-            }
         
-        return report
+def rmse(y_true, y_predict):
+    try:
+        return np.sqrt(mean_squared_error(y_true=y_true, y_pred=y_predict))
+    except Exception as e:
+        logging.error(e)
+        raise CustomException(e, sys)
+    
+def trainlgbm(x_train, y_train, x_test, y_test):
+    try:
+        params = {
+        "objective": "regression",
+        "metric": "rmse",
+        "learning_rate": 0.05,
+        "num_leaves": 64,
+        "feature_fraction": 0.8,
+        "bagging_fraction": 0.8,
+        "bagging_freq": 1,
+        "seed": 42,
+        "verbosity": -1
+    }
+
+        train_data = lgb.Dataset(x_train, label=y_train)
+        valid_data = lgb.Dataset(x_test, label=y_test)
+
+        model = lgb.train(
+            params,
+            train_data,
+            num_boost_round=2000,
+            valid_sets=[valid_data],
+            callbacks=[
+            lgb.early_stopping(100),
+            lgb.log_evaluation(100)
+        ]
+    )
+
+        preds = model.predict(x_test)
+        score = rmse(y_test, preds)
+
+        print("Validation RMSE:", score)
+
+        return model
     except Exception as e:
         logging.error(e)
         raise CustomException(e, sys)
