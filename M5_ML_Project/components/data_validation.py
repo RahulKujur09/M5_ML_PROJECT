@@ -43,17 +43,24 @@ class DataValidation:
             schame = set(get_schema(training_pipeline.SCHEMA_FILE_PATH))
             logging.info("retrived schema")
 
-            numerical_columns = train_set.select_dtypes(exclude="str").columns
+            numerical_columns = train_set.select_dtypes(include=["number"]).columns
 
             report = {}
             status = False
 
             for col in numerical_columns:
-                d1 = train_set[col].dropna()
-                d2 = test_set[col].dropna()
+                d1 = train_set[col]
+                d2 = test_set[col]
+
+                if len(d1) < 10 or len(d2) < 10:
+                    report[col] = {
+                        "p_value" : None,
+                        "status" : "insufficient_samples"
+                    }
+                    continue
 
                 is_dist_found = ks_2samp(d1, d2)
-                
+                    
                 if threshold <= is_dist_found.pvalue:
                     is_found = False
                 else:
@@ -61,23 +68,23 @@ class DataValidation:
                     status=True
 
                 report[col] = {
-                    "p_value" : float(is_dist_found.pvalue),
-                    "status" : is_found
-                }
-                logging.info("drift report generated")
+                        "p_value" : float(is_dist_found.pvalue),
+                        "status" : is_found
+                    }
+            logging.info("drift report generated")
 
-                save_report(content=report, file_path=self.drift_report_file_path)
+            save_report(content=report, file_path=self.drift_report_file_path)
 
-                if set(train_set.columns.to_list()) == schame:
-                    train_set.to_csv(self.valid_train_file_path, index=False)
-                else:
-                    train_set.to_csv(self.invalid_train_file_path, index=False)
+            if set(train_set.columns.to_list()) == schame:
+                train_set.to_csv(self.valid_train_file_path, index=False)
+            else:
+                train_set.to_csv(self.invalid_train_file_path, index=False)
 
-                if set(test_set.columns.to_list()) == schame:
-                    test_set.to_csv(self.valid_test_file_path, index=False)
-                else:
-                    test_set.to_csv(self.invalid_test_file_path, index=False)
-                logging.info("exported train and test set to their destination")
+            if set(test_set.columns.to_list()) == schame:
+                test_set.to_csv(self.valid_test_file_path, index=False)
+            else:
+                test_set.to_csv(self.invalid_test_file_path, index=False)
+            logging.info("exported train and test set to their destination")
 
             return DataValidationartifacts(drift_report_file_path=self.drift_report_file_path, valid_train_set_file_path=self.valid_train_file_path, valid_test_set_file_path=self.valid_test_file_path, invalid_train_set_file_path=self.invalid_train_file_path, invalid_test_set_file_path=self.invalid_test_file_path)
 

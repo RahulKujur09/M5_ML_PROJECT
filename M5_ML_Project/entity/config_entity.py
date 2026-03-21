@@ -96,3 +96,17 @@ class DataTransformationConfig:
         except Exception as e:
             logging.error(e)
             raise CustomException(e, sys)
+        
+class ModelTrainingConfig:
+    def __init__(self) -> None:
+        try:
+            self.model_trainer_dir_name : str = os.path.join(os.getcwd(), training_pipeline.MODEL_TRAINER_DIR_NAME)
+
+            os.makedirs(self.model_trainer_dir_name, exist_ok=True)
+
+            self.model_file_path : str = os.path.join(self.model_trainer_dir_name, training_pipeline.MODEL_TRAINER_MODEL_FILE_NAME)
+
+            self.report_file_path : str = os.path.join(self.model_trainer_dir_name, training_pipeline.MODEL_TRAINER_REPORT_FILE_NAME)
+        except Exception as e:
+            logging.error(e)
+            raise CustomException(e, sys)

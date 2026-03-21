@@ -115,6 +115,17 @@ class DataIngestion:
 
             actual_df = actual_df.drop(columns=["id", "d", "wm_yr_wk", "snap_TX", "snap_WI"])
 
+            # ===============================
+            # REMOVE NaNs from rolling features
+            # ===============================
+            actual_df = actual_df.sort_index()
+
+            rolling_cols = ["rolling_1", "rolling_7", "rolling_28"]
+
+            actual_df = actual_df.dropna(subset=rolling_cols)
+
+            logging.info("Dropped NaNs created by rolling features")
+
             actual_df.to_csv(self.feature_store_file_name)
             logging.info(f"exported feature set")
 
@@ -127,6 +138,9 @@ class DataIngestion:
 
             train_set = train_set.reset_index()
             test_set = test_set.reset_index()
+
+            if len(test_set) == 0 :
+                raise ValueError("TEST SET IS EMPTY - CHECK SPLIT DATE.")
 
             train_set.to_csv(self.train_set_file_name, index=False)
             test_set.to_csv(self.test_set_file_name, index=False)

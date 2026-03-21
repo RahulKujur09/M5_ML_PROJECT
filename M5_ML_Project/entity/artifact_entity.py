@@ -18,3 +18,7 @@ class DataValidationartifacts:
 class DataTransformationArtifacts:
     train_set_file_path : str
     test_set_file_path : str
+
+@dataclass
+class ModelTrainingArtifact:
+    trained_model_file_path : str
