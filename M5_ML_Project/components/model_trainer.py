@@ -60,13 +60,6 @@ class ModelTraining:
         
     def initiate_model_training(self, data_transformation_artifact : DataTransformationArtifacts) -> ModelTrainingArtifact:
         try:
-
-            model_grid = {
-                "random_forest" : (RandomForestRegressor(), training_pipeline.MODEL_TRAINER_RANDOM_FOREST_REGRESSION_PARAMS),
-                "gradient_boosting_regression" : (GradientBoostingRegressor(), training_pipeline.MODEL_TRAINER_GRADIENT_BOOSTING_REGRESSION_PARAMS),
-                "decision_tree_regression" : (DecisionTreeRegressor(), training_pipeline.MODEL_TRAINER_DECISION_TREE_REGRESSION_PARAMS)
-            }
-
             train_df = ModelTraining.get_dataframe(data_transformation_artifact.train_set_file_path)
             final_train_df = train_df.replace(["NAN", "nan", "Nan", "na", "Na", "NA"], np.nan)
             test_df = ModelTraining.get_dataframe(data_transformation_artifact.test_set_file_path)

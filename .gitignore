@@ -12,3 +12,4 @@ train.csv
 feature_store
 features.csv
 models
+final_model.pkl
