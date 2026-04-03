@@ -90,23 +90,14 @@ class DataIngestion:
             main_df = main_df.replace(["NAN", "Nan", "nan", "Na", "na", "NA"], np.nan)
             logging.info(f"replaced nan value with np.nan")
 
-            main_df["rolling_1"] = (
-                main_df.groupby("id")["sales"]
-                .transform(lambda x : x.rolling(1).mean())
-            )
-            logging.info(f"created 'rolling_1' column")
+            main_df["lag_1"] = main_df.groupby("id")["sales"].shift(1)
+            logging.info(f"created 'lag_1' column")
 
-            main_df["rolling_7"] = (
-                main_df.groupby("id")["sales"]
-                .transform(lambda x : x.rolling(7).mean())
-            )
-            logging.info(f"created 'rolling_7' column")
+            main_df["lag_7"]  = main_df.groupby("id")["sales"].shift(7)
+            logging.info(f"created 'lag_7' column")
 
-            main_df["rolling_28"] = (
-                main_df.groupby("id")["sales"]
-                .transform(lambda x : x.rolling(28).mean())
-            )
-            logging.info(f"created 'rolling_28' column")
+            main_df["lag_28"] = main_df.groupby("id")["sales"].shift(28)
+            logging.info(f"created 'lag_28' column")
 
             main_df["date"] = pd.to_datetime(main_df["date"])
             
@@ -121,7 +112,7 @@ class DataIngestion:
             # ===============================
             actual_df = actual_df.sort_index()
 
-            rolling_cols = ["rolling_1", "rolling_7", "rolling_28"]
+            rolling_cols = ["lag_1", "lag_7", "lag_28"]
 
             actual_df = actual_df.dropna(subset=rolling_cols)
 
@@ -130,7 +121,7 @@ class DataIngestion:
             actual_df.to_csv(self.feature_store_file_name)
             logging.info(f"exported feature set")
 
-            train_set = actual_df[actual_df.index <= training_pipeline.DATA_SET_SPLITTER]
+            train_set = actual_df[actual_df.index < training_pipeline.DATA_SET_SPLITTER]
             logging.info(f"exported train set")
 
             test_set = actual_df[actual_df.index >= training_pipeline.DATA_SET_SPLITTER]

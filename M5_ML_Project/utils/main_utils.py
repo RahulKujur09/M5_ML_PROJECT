@@ -5,8 +5,8 @@ import yaml
 import pickle
 from M5_ML_Project.logging.logger import logging
 from M5_ML_Project.exception.exception import CustomException
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, TimeSeriesSplit
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, mean_squared_error
+from sklearn.model_selection import KFold, GridSearchCV, RandomizedSearchCV
 
 import lightgbm as lgb
 
@@ -35,50 +35,55 @@ def rmse(y_true, y_predict):
         logging.error(e)
         raise CustomException(e, sys)
     
-def trainlgbm(x_train, y_train, x_test, y_test):
-    try:
-        params = {
-        "objective": "regression",
-        "metric": "rmse",
-        "learning_rate": 0.05,
-        "num_leaves": 64,
-        "feature_fraction": 0.8,
-        "bagging_fraction": 0.8,
-        "bagging_freq": 1,
-        "seed": 42,
-        "verbosity": -1
-    }
+from sklearn.model_selection import RandomizedSearchCV
 
-        train_data = lgb.Dataset(x_train, label=y_train)
-        valid_data = lgb.Dataset(x_test, label=y_test)
+def evaluate_models(X_train, y_train, models, params):
 
-        model = lgb.train(
-            params,
-            train_data,
-            num_boost_round=2000,
-            valid_sets=[valid_data],
-            callbacks=[
-            lgb.early_stopping(100),
-            lgb.log_evaluation(100)
-        ]
-    )
+    results = {}
 
-        preds = model.predict(x_test)
-        score = rmse(y_test, preds)
+    kf = KFold(n_splits=2, shuffle=True, random_state=42)  # reduce folds
 
-        print("Validation RMSE:", score)
+    for name, model in models.items():
 
-        return model
-    except Exception as e:
-        logging.error(e)
-        raise CustomException(e, sys)
+        print(f"\nTraining {name}")
+
+        if name in params:
+
+            search = RandomizedSearchCV(
+                estimator=model,
+                param_distributions=params[name],
+                n_iter=2,                # ⭐ VERY IMPORTANT
+                cv=kf,
+                scoring="neg_root_mean_squared_error",
+                n_jobs=-1,                # ⭐ MEMORY SAFE
+                verbose=1,
+                random_state=42
+            )
+
+            search.fit(X_train, y_train)
+
+            best_model = search.best_estimator_
+            score = -search.best_score_
+
+        else:
+            model.fit(X_train, y_train)
+
+            preds = model.predict(X_train)
+            score = np.sqrt(mean_squared_error(y_train, preds))
+            best_model = model
+
+        results[name] = (best_model, score)
+
+        print(f"{name} RMSE:", score)
+
+    return results
     
 def get_regression_report(y_true, y_pred):
     try:
         return pd.DataFrame({
-            "mean_absolute_error" : mean_absolute_error(y_pred=y_pred, y_true=y_true),
-            "mean_squared_error" : mean_squared_error(y_pred=y_pred, y_true=y_true),
-            "root_mean_squared_error" : root_mean_squared_error(y_pred=y_pred, y_true=y_true)
+            "mean_absolute_error" : [mean_absolute_error(y_pred=y_pred, y_true=y_true)],
+            "mean_squared_error" : [mean_squared_error(y_pred=y_pred, y_true=y_true)],
+            "root_mean_squared_error" : [root_mean_squared_error(y_pred=y_pred, y_true=y_true)]
         })
     except Exception as e:
         logging.error(e)

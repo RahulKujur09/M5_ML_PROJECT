@@ -8,9 +8,9 @@ columns:
   event_type_2: str
   item_id: str
   month: int64
-  rolling_1: float64
-  rolling_28: float64
-  rolling_7: float64
+  lag_1: float64
+  lag_28: float64
+  lag_7: float64
   sales: int64
   sell_price: float64
   snap_CA: int64
@@ -38,6 +38,6 @@ numerical_columns:
 - year
 - snap_CA
 - sell_price
-- rolling_1
-- rolling_7
-- rolling_28
+- lag_1
+- lag_7
+- lag_28
